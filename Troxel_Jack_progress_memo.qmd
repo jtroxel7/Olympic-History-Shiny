@@ -1,0 +1,53 @@
+---
+title: "Progress Memo"
+subtitle: |
+  | Final Project 
+  | Data Visualization (STAT 302)
+author: "Jack Troxel and Charlie Lovett"
+date: today
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    
+execute:
+  warning: false
+---
+
+## Partners
+We think that working together on this project will allow us to build on eachother's strengths to create a final project that is more advanced/comprehensive than what we might be able to do by ourselves. We plan to work together in person (or via zoom if in person meetings are not possible). 
+
+## Data source
+
+We will be using a data set from Kaggle that describes data for each Olympian from the Athens games in 1896 to the Rio games in 2016. For each athlete, the dataset shows information such as height, weight, age, nationality, and more. The dataset can be found [here](https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results).
+
+## Basic data description
+
+```{r}
+# import libraries
+library(tidyverse)
+library(skimr)
+library(janitor)
+
+# read data
+data <- read_delim('data/olympics.txt', delim=',') %>% 
+  clean_names()
+
+skim_without_charts(data)
+```
+
+As seen above, there are 271,116 observations, each of which are an athlete's performance in a specific event. There are ten categorical variables and five numerical variables. There are not any missingness issues, the "medal" variable has a lot of missing values, but this is because many athletes do not medal in their respective events.
+
+## Why this data
+
+We are both extremely interested in visualizing the history of the Olympic games. We are both fans of varying Olympic sports and believe that it would be very interesting to answer questions about the history of the Olympics such as (but not limited to) the following:
+
+- How have differing countries performed at the Olympics in the past?
+- What are the trends in body size across varying Olympic sports?
+- How have athletes performed in games that are in their home countries?
+
+## Visualization plan
+
+We are planning to build a Shiny App (similar to the apps that we have built in the last few labs). In this app, we would like to display different interactive graphics that help to provide information on the history of the Olympic games. One graphic, for example, might be a world map that displays information on the number of Olympic medals by country. We could make this specific graphic interactive by allowing for selection of all medals, or just gold/silver/bronze medals.
+
