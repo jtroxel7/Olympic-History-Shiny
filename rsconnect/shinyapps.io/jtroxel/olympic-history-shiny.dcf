@@ -1,0 +1,11 @@
+name: olympic-history-shiny
+title:
+username:
+account: jtroxel
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9231050
+bundleId: 7293676
+url: https://jtroxel.shinyapps.io/olympic-history-shiny/
+when: 1685648874.66936
+lastSyncTime: 1685648874.66939

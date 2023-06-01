@@ -1,2 +1,2 @@
-# Olympic History Shiny App
-Development of a Shiny App to display various information on the history of the olympics
+# Visualizing the History of the Olympic Games
+A Shiny App created by Charlie Lovett and Jack Troxel to visualize trends throughout history in the Olympic games. This dashboard can be viewed here.
