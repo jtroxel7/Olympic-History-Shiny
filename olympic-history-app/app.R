@@ -190,11 +190,28 @@ ui <- fluidPage(
         titlePanel("Additional Information / Work Split"),
         mainPanel(
           h4("Additional Information on Graphics"),
-          p("What is the core concept(s) or insight(s) into the data that you 
-            believe the visualization communicates? If you choose to include 
-            animation then explain why animation helps. If you build an app 
-            then explain your choice of widgets and what about the data it 
-            help users understand."),
+          p("This application provides users with a brief yet descriptive
+            and informative exploration of the history of The Olympic Games.
+            The static map graphic displays the locations of every Winter or
+            Summer Olympics and identifies a few large cities that have hosted
+            at least once. The interactive map allows users to understand the
+            distribution of medals won by every competing country in the games.
+            It is evident that there are a few countries that stand out as ones
+            that have one many more medals than others. These include the United
+            States, Russia, China, Brazil, and Canada. The seemingly obvious
+            interpretation of this is that larger countries win more medals. This
+            is because larger populations allow for more potential to have
+            talented athletes. Finally, the density plot clearly displays the
+            distributions of height and weight for men and women in each event
+            in the Olympic Games."),
+          br(),
+          p("This dataset is extremely large: it contains every single unique
+            athlete-event pair in the entire history of the Olympic Games.
+            Our application condenses this dataset into a few easily
+            understandable graphics that allow the user to dive deeper into the
+            meaning of the data. Our widget options allow users to analyze
+            similarities and differences in trends and to make conclusions of
+            their own."),
           br(),
           h4("Partner Work Split"),
           p("We decided to work on this project so that we could
@@ -284,6 +301,10 @@ server <- function(input, output) {
                     'Gold' = 'gold',
                     'Silver' = '#C0C0C0',
                     'Bronze' = '#CD7F32')
+    label <- switch(input$medal_button,
+                    'Gold' = 'Gold Medals',
+                    'Silver' = 'Silver Medals',
+                    'Bronze' = 'Bronze Medals')
     
     ggplot() +
       geom_polygon(data = merged_data,
@@ -295,7 +316,7 @@ server <- function(input, output) {
                             low = 'white',
                             high = color) +
       coord_equal(xlim = c(-180, 180), ylim = c(-60, 90), ratio = 1.5) +
-      labs(fill = 'Gold Medals') +
+      labs(fill = label) +
       theme_void()
   })
   
