@@ -4,9 +4,29 @@ library(janitor)
 library(shinydashboard)
 
 
-# read data
-data <- read_delim('data/olympics.txt', delim=',') %>% 
+# data preparation
+olympics_data <- read_delim('data/olympics.txt', delim=',') %>% 
   clean_names()
+
+city_data <- read_csv('data/cities.csv')
+city_data$Season <- ifelse(is.na(city_data$Summer), 'Winter', 'Summer')
+
+world_map <- map_data("world")
+world_map <- subset(world_map, !(region == "Antarctica"))
+
+regions_data <- read_csv('data/regions.csv') %>% 
+  clean_names()
+
+medal_counts <- olympics_data %>%
+  group_by(noc, medal) %>%
+  summarize(Count = n()) %>%
+  pivot_wider(names_from = medal, values_from = Count, values_fill = 0)
+medal_counts <- merge(medal_counts, regions_data, by = "noc", all.x = TRUE)
+medal_counts <- medal_counts %>%
+  filter(region %in% world_map$region)
+
+merged_data <- left_join(world_map, medal_counts, by = c("region" = "region"))
+
 
 ui <- fluidPage(
   tags$head(
@@ -44,6 +64,9 @@ ui <- fluidPage(
       .subtitle {
         font-size: 14px;
         margin-bottom: 10px;
+      }
+      .content-wrapper .content-header {
+          margin-bottom: 0;
       }
     "))
   ),
@@ -101,15 +124,23 @@ ui <- fluidPage(
         title = "World Map",
         titlePanel("Map of Past Olympic Locations"),
         mainPanel(
-          p("PUT GRAPHIC HERE")
+          plotOutput(outputId = "world_map", width = 780, height = 390)
         )
       ),
       tabPanel(
         title = "Medals by Country",
         titlePanel("Medal Counts by Nation"),
+        sidebarLayout(position = "right",
+            sidebarPanel(
+              radioButtons("medal_button",
+                           "Select Medal:",
+                           choices = c("Gold", 
+                                       "Silver",
+                                       "Bronze"),
+                           selected = "Gold")),
         mainPanel(
-          p("PUT GRAPHIC HERE")
-        )
+          plotOutput(outputId = "medal_map")
+        ))
       ),
       tabPanel(
         title = "Body Size vs. Sport",
@@ -184,17 +215,100 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  # Server logic goes here
+  # world map rendering
+  output$world_map <- renderPlot({
+    # creating the world map plot
+    ggplot() +
+      geom_polygon(data = world_map,
+                   aes(x = long, y = lat, group = group),
+                   color = 'grey60',
+                   fill = 'white') +
+      geom_point(data = city_data,
+                 aes(x = Longitude, y = Latitude, color = Season),
+                 size = 2) +
+      annotate(geom = "text",
+               x = -118.2436829 - 5,
+               y = 34.05223,
+               label = 'Los Angeles',
+               hjust = "right",
+               size = 4,
+               color = 'black') +
+      annotate(geom = "text",
+               x = -43.2075005 + 5,
+               y = -22.90278,
+               label = 'Rio de\nJaneiro',
+               hjust = "left",
+               size = 4,
+               color = 'black') +
+      annotate(geom = "text",
+               x = 151.2073212 + 5,
+               y = -33.86785,
+               label = 'Sydney',
+               hjust = "left",
+               size = 4,
+               color = 'black') +
+      annotate(geom = "text",
+               x = 139.6916809 + 5,
+               y = 35.68953,
+               label = 'Tokyo',
+               hjust = "left",
+               size = 4,
+               color = 'black') +
+      annotate(geom = "text",
+               x = 37.6155548 + 3,
+               y = 55.75222 + 4,
+               label = 'Moscow',
+               hjust = "left",
+               size = 4,
+               color = 'black') +
+      scale_color_manual(labels = c('Summer', 'Winter'),
+                         values = c('red', 'blue')) +
+      coord_equal(xlim = c(-180, 180), ylim = c(-60, 90), ratio = 1.2) +
+      theme_void() +
+      theme(legend.justification = c(0.5, 1),
+            legend.position = c(0.5, 1),
+            legend.direction = 'horizontal',
+            legend.text = element_text(size = 15),
+            legend.title = element_text(size = 20)) +
+      guides(color = guide_legend(override.aes = list(size = 5)))
+  })
+  
+  # creating the world map for medals by country
+  output$medal_map <- renderPlot({
+    
+    medal <- switch(input$medal_button,
+                       'Gold' = merged_data$Gold,
+                       'Silver' = merged_data$Silver,
+                       'Bronze' = merged_data$Bronze)
+    color <- switch(input$medal_button,
+                    'Gold' = 'gold',
+                    'Silver' = '#C0C0C0',
+                    'Bronze' = '#CD7F32')
+    
+    ggplot() +
+      geom_polygon(data = merged_data,
+                   aes(x = long, y = lat, group = group, fill = medal),
+                   color = 'grey60') +
+      scale_fill_continuous(trans = "log10",
+                            breaks = c(1, 10, 100, 1000),
+                            na.value = 'white',
+                            low = 'white',
+                            high = color) +
+      coord_equal(xlim = c(-180, 180), ylim = c(-60, 90), ratio = 1.5) +
+      labs(fill = 'Gold Medals') +
+      theme_void()
+  })
+  
   
   # create dist plot for heights and weights by sport
   output$height_weight_plot <- renderPlot({
     
     if (input$sport == "All Sports") {
-      sport_data <- data
+      sport_data <- olympics_data
     } else if (input$sport != "") {
       sport_data <- subset(data, sport %in% input$sport)
     } else {
-      sport_data <- data
+      sport_data <- olympics_data
     }
     
     x <- case_when(
