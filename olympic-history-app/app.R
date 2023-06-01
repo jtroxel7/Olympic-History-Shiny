@@ -327,7 +327,7 @@ server <- function(input, output) {
     if (input$sport == "All Sports") {
       sport_data <- olympics_data
     } else if (input$sport != "") {
-      sport_data <- subset(data, sport %in% input$sport)
+      sport_data <- subset(olympics_data, sport %in% input$sport)
     } else {
       sport_data <- olympics_data
     }
@@ -377,12 +377,12 @@ server <- function(input, output) {
         expand = c(0, 0)
       ) +
       scale_color_manual(
-        values = c("#89cffa", "#f7a1c8"),
-        labels = c("Male", "Female")
+        values = c("#f7a1c8", "#89cffa"),
+        labels = c("Female", "Male")
       ) +
       scale_fill_manual(
-        values = c("#89cffa", "#f7a1c8"),
-        labels = c("Male", "Female")
+        values = c("#f7a1c8", "#89cffa"),
+        labels = c("Female", "Male")
       ) +
       labs(
         title = title,
