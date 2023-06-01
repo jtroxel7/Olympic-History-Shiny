@@ -1,0 +1,13 @@
+name: olympic-history-app
+title: olympic-history-app
+username:
+account: clovett
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9232076
+bundleId: 7294292
+url: https://clovett.shinyapps.io/olympic-history-app/
+when: 1685659715.06569
+lastSyncTime: 1685659715.06571
+asMultiple: FALSE
+asStatic: FALSE
